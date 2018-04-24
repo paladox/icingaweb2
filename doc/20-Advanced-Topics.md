@@ -117,7 +117,42 @@ systemctl reload httpd
 
 ### Manual User Creation for Database Authentication Backend <a id="advanced-topics-authentication-tips-manual-user-database-auth"></a>
 
-Icinga Web 2 uses the MD5 based BSD password algorithm. For generating a password hash, please use the following
+Icinga Web 2 v2.5+ uses the [native password hash algorithm](http://php.net/manual/en/faq.passwords.php)
+provided by PHP 5.6+.
+
+In order to generate a password, run the following command with the PHP CLI >= 5.6:
+
+```
+php -r 'echo password_hash("yourtopsecretpassword", PASSWORD_DEFAULT);'
+```
+
+Please note that the hashed output changes each time. This is expected.
+
+Insert the user into the database using the generated password hash.
+
+```
+INSERT INTO icingaweb_user (name, active, password_hash) VALUES ('icingaadmin', 1, '$2y$10$bEKU6.1bRYjE7wxktqfeO.IGV9pYAkDBeXEbjMFSNs26lKTI0JQ1q');
+```
+
+#### Puppet <a id="advanced-topics-authentication-tips-manual-user-database-auth-puppet"></a>
+
+Please do note that the `$` character needs to be escaped with a leading backslash in your
+Puppet manifests.
+
+Example from [puppet-icingaweb2](https://github.com/Icinga/puppet-icingaweb2):
+
+```
+        exec { 'create default user':
+          command     => "mysql -h '${db_host}' -P '${db_port}' -u '${db_username}' -p'${db_password}' '${db_name}' -Ns -e 'INSERT INTO icingaweb_user (name, active, password_hash) VALUES (\"icingaadmin\", 1, \"\$2y\$10\$QnXfBjl1RE6TqJcY85ZKJuP9AvAV3ont9QihMTFQ/D/vHmAWaz.lG\")'",
+          refreshonly => true,
+        }
+```
+
+
+
+#### Icinga Web 2 < 2.5 <a id="advanced-topics-authentication-tips-manual-user-database-auth-pre-2-5"></a>
+
+Icinga Web 2 < 2.5 uses the MD5 based BSD password algorithm. For generating a password hash, please use the following
 command:
 
 ```
