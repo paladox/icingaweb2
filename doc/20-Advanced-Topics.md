@@ -134,6 +134,22 @@ Insert the user into the database using the generated password hash.
 INSERT INTO icingaweb_user (name, active, password_hash) VALUES ('icingaadmin', 1, '$2y$10$bEKU6.1bRYjE7wxktqfeO.IGV9pYAkDBeXEbjMFSNs26lKTI0JQ1q');
 ```
 
+Alternative CLI commands for generating the hash are as follows.
+
+Python:
+
+```
+pip install bcrypt
+python -c 'import bcrypt; print(bcrypt.hashpw("yourtopsecretpassword", bcrypt.gensalt(10)))'
+```
+
+Bash:
+
+```
+htpasswd -bnBC 10 "" 'yourtopsecretpassword' | tr --delete ':\n'
+```
+
+
 #### Puppet <a id="advanced-topics-authentication-tips-manual-user-database-auth-puppet"></a>
 
 Please do note that the `$` character needs to be escaped with a leading backslash in your
